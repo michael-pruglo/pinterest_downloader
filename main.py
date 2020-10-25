@@ -26,22 +26,21 @@ def getPinUrls(board_url):
 def getOriginalsImgSrcFromPin(pin_url):
   driver.get(pin_url)
   images = driver.find_elements_by_tag_name("img")
-  return images[0].get_attribute("src") #assuming the first has "originals" in it
-"""
   for img in images:
     img_src = img.get_attribute("src")
     if "originals" in img_src:
       return img_src
-"""
 
 def getBoardOriginals(board_url):
   total_imgs = []
   pin_pages =  getPinUrls(board_url)
+  print("size:", len(pin_pages))
   print(pin_pages)
-  for single_pin in pin_pages:
+  for i, single_pin in enumerate(pin_pages):
     original_imgs = getOriginalsImgSrcFromPin("https://www.pinterest.com" + single_pin)
-    print(single_pin, "\t\t:\t\t", original_imgs)
-    total_imgs.append(original_imgs)
+    print("%3d" % (i+1), ")\t\t", single_pin, "\t\t", original_imgs)
+    if original_imgs is not None:
+      total_imgs.append(original_imgs)
   return total_imgs
 
 def generateFilenameFromURL(img_url):
@@ -61,9 +60,10 @@ def downloadBoard(board_url, folder_path):
   img_urls = getBoardOriginals(board_url)
   print("\nFetching", len(img_urls), "picture(s) done. Downloading...")
   for img_url in img_urls:
-    print("\t", img_url, end=' ')
-    downloadImg(img_url, folder_path)
-    print("done.")
+    if img_url is not None:
+      print("\t", img_url, end=' ')
+      downloadImg(img_url, folder_path)
+      print("done.")
 
 def prepareFolder(folder_name):
   import os
@@ -72,8 +72,8 @@ def prepareFolder(folder_name):
 
 print("\n\n\n")
 try:
-  folder_name = "D:/temp/dwnltst"
+  folder_name = "D:/temp/dwnltst2"
   prepareFolder(folder_name)
-  downloadBoard("https://www.pinterest.com/michaelpruglo/test/", folder_name)
+  downloadBoard("https://www.pinterest.com/michaelpruglo/misc-awesome-stuff/", folder_name)
 finally:
   driver.quit()
