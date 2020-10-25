@@ -65,6 +65,13 @@ def downloadBoard(board_url, folder_path):
       downloadImg(img_url, folder_path)
       print("done.")
 
+def generateFolderName(board_name):
+  split_board_name = board_name.split('/')
+  if board_name[-1] == '/':
+    return split_board_name[-2]
+  else:
+    return split_board_name[-1]
+
 def prepareFolder(folder_name):
   import os
   if not os.path.exists(folder_name):
@@ -72,8 +79,9 @@ def prepareFolder(folder_name):
 
 print("\n\n\n")
 try:
-  folder_name = "D:/temp/dwnltst2"
+  board_name = "https://www.pinterest.com/michaelpruglo/misc-awesome-stuff/"
+  folder_name = "D:/temp/" + generateFolderName(board_name)
   prepareFolder(folder_name)
-  downloadBoard("https://www.pinterest.com/michaelpruglo/misc-awesome-stuff/", folder_name)
+  downloadBoard(board_name, folder_name)
 finally:
   driver.quit()
