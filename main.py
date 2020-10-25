@@ -10,6 +10,7 @@ cap = DesiredCapabilities().FIREFOX
 cap["marionette"] = True #optional
 driver = webdriver.Firefox(firefox_options=options, capabilities=cap, executable_path="C:\\python\\geckodriver.exe")
 
+rejected = []
 
 def getPinUrls(board_url):
   from lxml import html
@@ -39,7 +40,9 @@ def getBoardOriginals(board_url):
   for i, single_pin in enumerate(pin_pages):
     original_imgs = getOriginalsImgSrcFromPin("https://www.pinterest.com" + single_pin)
     print("%3d" % (i+1), ")\t\t", single_pin, "\t\t", original_imgs)
-    if original_imgs is not None:
+    if original_imgs is None:
+      rejected.append(single_pin)
+    else:
       total_imgs.append(original_imgs)
   return total_imgs
 
@@ -77,11 +80,21 @@ def prepareFolder(folder_name):
   if not os.path.exists(folder_name):
       os.makedirs(folder_name)
 
-print("\n\n\n")
-try:
-  board_name = "https://www.pinterest.com/michaelpruglo/misc-awesome-stuff/"
-  folder_name = "D:/temp/" + generateFolderName(board_name)
+def download(board_name):
+  print("\n\n\n")
+  print("downloading", board_name, "\n")
+  folder_name = "D:/temp/real/" + generateFolderName(board_name)
   prepareFolder(folder_name)
   downloadBoard(board_name, folder_name)
+
+
+try:
+  for board_name in [
+    "https://www.pinterest.com/michaelpruglo/misc-awesome-stuff/",
+    "https://www.pinterest.com/michaelpruglo/test/"
+  ]:
+    download(board_name)
 finally:
+  print("\n\n", len(rejected), "rejected:")
+  print(rejected)
   driver.quit()
