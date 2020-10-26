@@ -10,7 +10,7 @@ cap = DesiredCapabilities().FIREFOX
 cap["marionette"] = True #optional
 driver = webdriver.Firefox(firefox_options=options, capabilities=cap, executable_path="C:\\python\\geckodriver.exe")
 
-LOCAL_PARENT_FOLDER = "D:/temp/"
+LOCAL_PARENT_FOLDER = "D:/temp/nyyyy"
 LOG_LINE_LEN = 140
 global_rejected = []
 
@@ -104,13 +104,13 @@ def generateFolderName(board_name):
 def prepareFolder(folder_name):
   import os
   if not os.path.exists(folder_name):
-      os.makedirs(folder_name)
+    prepareFolder(os.path.dirname(folder_name))
+    os.makedirs(folder_name)
 
 
 def download(board_name):
-  print("\n\n\n")
-  print("downloading", board_name, "\n")
-  folder_name = LOCAL_PARENT_FOLDER + generateFolderName(board_name)
+  print("\n\n\n\ndownloading", board_name, "\n")
+  folder_name = LOCAL_PARENT_FOLDER + ("" if LOCAL_PARENT_FOLDER[-1]=='/' else "/") + generateFolderName(board_name)
   prepareFolder(folder_name)
   downloadBoard(board_name, folder_name)
 
