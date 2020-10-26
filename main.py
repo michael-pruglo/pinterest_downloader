@@ -143,27 +143,8 @@ input_test_set = [
 ]
 input_test_boardnames = [makeFullBoardURL(s) for s in input_test_set]
 
-input_real_set = [
-  "tits",
-  "earrings",
-  "ahegao",
-  "legsfeet",
-  "poses",
-  "makeup",
-  "strapscutout",
-  "eyes",
-  "nails",
-  "butt",
-  "headwear",
-  "mouthtongue",
-  "fit",
-  "overknee-socks",
-  "glasses",
-  "hairstyles",
-  "stilettos",
-  "faces",
-  "outfits",
-]
+with open("urls.txt") as url_file:
+  input_real_set = [url.rstrip('\n') for url in url_file]
 input_real_boardnames = [
   *[makeFullSubsectionURL("girls", s) for s in input_real_set],
   makeFullBoardURL("girls")
@@ -171,5 +152,4 @@ input_real_boardnames = [
 
 """ --------------------------------------------------- ---- --------------------------------------------------- """
 
-with open("urls.txt") as url_file:
-  main([url.rstrip('\n') for url in url_file])
+main(input_test_boardnames)
