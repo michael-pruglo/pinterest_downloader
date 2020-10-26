@@ -171,4 +171,5 @@ input_real_boardnames = [
 
 """ --------------------------------------------------- ---- --------------------------------------------------- """
 
-main(input_test_boardnames)
+with open("urls.txt") as url_file:
+  main([url.rstrip('\n') for url in url_file])
