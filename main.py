@@ -30,11 +30,11 @@ def getPinUrls(board_url):
 
 def getOriginalsImgSrcFromPin(pin_url):
   driver.get(pin_url)
-  images = driver.find_elements_by_tag_name("img")
-  for img in images:
-    img_src = img.get_attribute("src")
-    if "originals" in img_src:
-      return img_src
+  images = driver.find_elements_by_xpath('//img[contains(@src, "originals")]')
+  if len(images) == 1:
+    return images[0].get_attribute("src")
+  elif len(images) > 1:
+    print("more than one original")
 
 
 def getBoardOriginals(board_url):
