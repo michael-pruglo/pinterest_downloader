@@ -10,6 +10,7 @@ cap = DesiredCapabilities().FIREFOX
 cap["marionette"] = True #optional
 driver = webdriver.Firefox(firefox_options=options, capabilities=cap, executable_path="C:\\python\\geckodriver.exe")
 
+LOCAL_PARENT_FOLDER = "D:/temp/"
 LOG_LINE_LEN = 140
 global_rejected = []
 
@@ -45,7 +46,7 @@ def getBoardOriginals(board_url):
   print("Their urls:", pin_pages, "\n")
   print("Fetching...")
   print("-" * LOG_LINE_LEN)
-  print(" No  \t\t     single pin url     \t\t                             original img url")
+  print("  #  \t\t     single pin url     \t\t                             original img url")
   print("-" * LOG_LINE_LEN)
   
   for i, single_pin in enumerate(pin_pages):
@@ -81,7 +82,8 @@ def downloadBoard(board_url, folder_path):
   img_urls, rejected_pins = getBoardOriginals(board_url)
   global_rejected.append(rejected_pins)
 
-  print("Fetching done. +", len(img_urls), "  -", len(rejected_pins), "Downloading...")
+  print("Fetching done. Success:", len(img_urls), " rejected:", len(rejected_pins))
+  print("Downloading into", folder_path)
   
   for img_url in img_urls:
     print("\t", img_url, end=' ')
@@ -108,18 +110,17 @@ def prepareFolder(folder_name):
 def download(board_name):
   print("\n\n\n")
   print("downloading", board_name, "\n")
-  folder_name = "D:/temp/real/" + generateFolderName(board_name)
+  folder_name = LOCAL_PARENT_FOLDER + generateFolderName(board_name)
   prepareFolder(folder_name)
   downloadBoard(board_name, folder_name)
 
 """ --------------------------------------------------- MAIN --------------------------------------------------- """
-
 def main(board_names):
   try:
     for board_name in board_names:
       download(board_name)
   finally:
-    print("\n\n", len([*global_rejected]), "rejected:")
+    print("\n\n", sum(len(x) for x in global_rejected), "rejected:")
     print("[")
     for rej in global_rejected:
       print(" ", rej)
