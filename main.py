@@ -10,6 +10,7 @@ cap = DesiredCapabilities().FIREFOX
 cap["marionette"] = True #optional
 driver = webdriver.Firefox(firefox_options=options, capabilities=cap, executable_path="C:\\python\\geckodriver.exe")
 
+LOG_LINE_LEN = 140
 global_rejected = []
 
 """ ---------------------------------------------- Business logic ---------------------------------------------- """
@@ -40,13 +41,16 @@ def getBoardOriginals(board_url):
   approved_imgs, rejected_pins = [], []
   pin_pages =  getPinUrls(board_url)
 
-  print("found pins:", len(pin_pages))
-  print("their urls:", pin_pages)
+  print("Found pins:", len(pin_pages))
+  print("Their urls:", pin_pages, "\n")
+  print("Fetching...")
+  print("-" * LOG_LINE_LEN)
+  print(" No  \t\t     single pin url     \t\t                             original img url")
+  print("-" * LOG_LINE_LEN)
   
   for i, single_pin in enumerate(pin_pages):
     original_imgs = getOriginalsImgSrcFromPin("https://www.pinterest.com" + single_pin)
 
-    print(" No  \t\t     single pin url     \t\t                             original img url")
     print("%3d" % (i+1), ")\t\t", single_pin, "\t\t", original_imgs)
     
     if original_imgs is None:
@@ -54,6 +58,7 @@ def getBoardOriginals(board_url):
     else:
       approved_imgs.append(original_imgs)
   
+  print("-" * LOG_LINE_LEN, "\n")
   return approved_imgs, rejected_pins
 
 
@@ -75,11 +80,15 @@ def downloadImg(img_url, folder_path):
 def downloadBoard(board_url, folder_path):
   img_urls, rejected_pins = getBoardOriginals(board_url)
   global_rejected.append(rejected_pins)
-  print("\nFetching done. +", len(img_urls), "  -", len(rejected_pins), "Downloading...")
+
+  print("Fetching done. +", len(img_urls), "  -", len(rejected_pins), "Downloading...")
+  
   for img_url in img_urls:
     print("\t", img_url, end=' ')
     downloadImg(img_url, folder_path)
-    print("done.")
+    print("\t done.")
+  
+  print("\n", "-" * LOG_LINE_LEN)
 
 
 def generateFolderName(board_name):
@@ -110,36 +119,55 @@ def main(board_names):
     for board_name in board_names:
       download(board_name)
   finally:
-    print("\n\n", len(global_rejected), "rejected:")
-    print(global_rejected)
+    print("\n\n", len([*global_rejected]), "rejected:")
+    print("[")
+    for rej in global_rejected:
+      print(" ", rej)
+    print("]")
     driver.quit()
 
 
-test_boardnames = [
-  "https://www.pinterest.com/michaelpruglo/misc-awesome-stuff",
-  "https://www.pinterest.com/michaelpruglo/test/"
+""" --------------------------------------------------- INPUT --------------------------------------------------- """
+
+pinterest_prefix = "https://www.pinterest.com/"
+def makeFullBoardURL(board_name, username="michaelpruglo"):
+  return pinterest_prefix + username + "/" + board_name + "/"
+
+def makeFullSubsectionURL(parent_board_name, subsection, username="michaelpruglo"):
+  return pinterest_prefix + username + "/" + parent_board_name + "/" + subsection + "/"
+
+input_test_set = [
+  "misc-awesome-stuff",
+  "test",
 ]
-real_boardnames = [
-  "https://www.pinterest.com/michaelpruglo/girls/tits/",
-  "https://www.pinterest.com/michaelpruglo/girls/earrings/",
-  "https://www.pinterest.com/michaelpruglo/girls/ahegao/",
-  "https://www.pinterest.com/michaelpruglo/girls/legsfeet/",
-  "https://www.pinterest.com/michaelpruglo/girls/poses/",
-  "https://www.pinterest.com/michaelpruglo/girls/makeup/",
-  "https://www.pinterest.com/michaelpruglo/girls/strapscutout/",
-  "https://www.pinterest.com/michaelpruglo/girls/eyes/",
-  "https://www.pinterest.com/michaelpruglo/girls/nails/",
-  "https://www.pinterest.com/michaelpruglo/girls/butt/",
-  "https://www.pinterest.com/michaelpruglo/girls/headwear/",
-  "https://www.pinterest.com/michaelpruglo/girls/mouthtongue/",
-  "https://www.pinterest.com/michaelpruglo/girls/fit/",
-  "https://www.pinterest.com/michaelpruglo/girls/overknee-socks/",
-  "https://www.pinterest.com/michaelpruglo/girls/glasses/",
-  "https://www.pinterest.com/michaelpruglo/girls/hairstyles/",
-  "https://www.pinterest.com/michaelpruglo/girls/stilettos/",
-  "https://www.pinterest.com/michaelpruglo/girls/faces/",
-  "https://www.pinterest.com/michaelpruglo/girls/outfits/",
-  "https://www.pinterest.com/michaelpruglo/girls/"
+input_test_boardnames = [makeFullBoardURL(s) for s in input_test_set]
+
+input_real_set = [
+  "tits",
+  "earrings",
+  "ahegao",
+  "legsfeet",
+  "poses",
+  "makeup",
+  "strapscutout",
+  "eyes",
+  "nails",
+  "butt",
+  "headwear",
+  "mouthtongue",
+  "fit",
+  "overknee-socks",
+  "glasses",
+  "hairstyles",
+  "stilettos",
+  "faces",
+  "outfits",
+]
+input_real_boardnames = [
+  *[makeFullSubsectionURL("girls", s) for s in input_real_set],
+  makeFullBoardURL("girls")
 ]
 
-main(test_boardnames)
+""" --------------------------------------------------- ---- --------------------------------------------------- """
+
+main(input_test_boardnames)
