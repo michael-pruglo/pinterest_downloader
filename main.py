@@ -10,7 +10,9 @@ cap = DesiredCapabilities().FIREFOX
 cap["marionette"] = True #optional
 driver = webdriver.Firefox(firefox_options=options, capabilities=cap, executable_path="C:\\python\\geckodriver.exe")
 
-rejected = []
+global_rejected = []
+
+""" ---------------------------------------------- Business logic ---------------------------------------------- """
 
 def getPinUrls(board_url):
   from lxml import html
@@ -24,6 +26,7 @@ def getPinUrls(board_url):
   del page, tree
   return [s for s in pins if s.startswith('/pin/')]
 
+
 def getOriginalsImgSrcFromPin(pin_url):
   driver.get(pin_url)
   images = driver.find_elements_by_tag_name("img")
@@ -32,22 +35,31 @@ def getOriginalsImgSrcFromPin(pin_url):
     if "originals" in img_src:
       return img_src
 
+
 def getBoardOriginals(board_url):
-  total_imgs = []
+  approved_imgs, rejected_pins = [], []
   pin_pages =  getPinUrls(board_url)
-  print("size:", len(pin_pages))
-  print(pin_pages)
+
+  print("found pins:", len(pin_pages))
+  print("their urls:", pin_pages)
+  
   for i, single_pin in enumerate(pin_pages):
     original_imgs = getOriginalsImgSrcFromPin("https://www.pinterest.com" + single_pin)
+
+    print(" No  \t\t     single pin url     \t\t                             original img url")
     print("%3d" % (i+1), ")\t\t", single_pin, "\t\t", original_imgs)
+    
     if original_imgs is None:
-      rejected.append(single_pin)
+      rejected_pins.append(single_pin)
     else:
-      total_imgs.append(original_imgs)
-  return total_imgs
+      approved_imgs.append(original_imgs)
+  
+  return approved_imgs, rejected_pins
+
 
 def generateFilenameFromURL(img_url):
   return img_url.split('/')[-1]
+
 
 def downloadImg(img_url, folder_path):
   import urllib
@@ -59,14 +71,16 @@ def downloadImg(img_url, folder_path):
   finally:
     output.close()
 
+
 def downloadBoard(board_url, folder_path):
-  img_urls = getBoardOriginals(board_url)
-  print("\nFetching", len(img_urls), "picture(s) done. Downloading...")
+  img_urls, rejected_pins = getBoardOriginals(board_url)
+  global_rejected.append(rejected_pins)
+  print("\nFetching done. +", len(img_urls), "  -", len(rejected_pins), "Downloading...")
   for img_url in img_urls:
-    if img_url is not None:
-      print("\t", img_url, end=' ')
-      downloadImg(img_url, folder_path)
-      print("done.")
+    print("\t", img_url, end=' ')
+    downloadImg(img_url, folder_path)
+    print("done.")
+
 
 def generateFolderName(board_name):
   split_board_name = board_name.split('/')
@@ -75,10 +89,12 @@ def generateFolderName(board_name):
   else:
     return split_board_name[-1]
 
+
 def prepareFolder(folder_name):
   import os
   if not os.path.exists(folder_name):
       os.makedirs(folder_name)
+
 
 def download(board_name):
   print("\n\n\n")
@@ -87,14 +103,43 @@ def download(board_name):
   prepareFolder(folder_name)
   downloadBoard(board_name, folder_name)
 
+""" --------------------------------------------------- MAIN --------------------------------------------------- """
 
-try:
-  for board_name in [
-    "https://www.pinterest.com/michaelpruglo/misc-awesome-stuff/",
-    "https://www.pinterest.com/michaelpruglo/test/"
-  ]:
-    download(board_name)
-finally:
-  print("\n\n", len(rejected), "rejected:")
-  print(rejected)
-  driver.quit()
+def main(board_names):
+  try:
+    for board_name in board_names:
+      download(board_name)
+  finally:
+    print("\n\n", len(global_rejected), "rejected:")
+    print(global_rejected)
+    driver.quit()
+
+
+test_boardnames = [
+  "https://www.pinterest.com/michaelpruglo/misc-awesome-stuff",
+  "https://www.pinterest.com/michaelpruglo/test/"
+]
+real_boardnames = [
+  "https://www.pinterest.com/michaelpruglo/girls/tits/",
+  "https://www.pinterest.com/michaelpruglo/girls/earrings/",
+  "https://www.pinterest.com/michaelpruglo/girls/ahegao/",
+  "https://www.pinterest.com/michaelpruglo/girls/legsfeet/",
+  "https://www.pinterest.com/michaelpruglo/girls/poses/",
+  "https://www.pinterest.com/michaelpruglo/girls/makeup/",
+  "https://www.pinterest.com/michaelpruglo/girls/strapscutout/",
+  "https://www.pinterest.com/michaelpruglo/girls/eyes/",
+  "https://www.pinterest.com/michaelpruglo/girls/nails/",
+  "https://www.pinterest.com/michaelpruglo/girls/butt/",
+  "https://www.pinterest.com/michaelpruglo/girls/headwear/",
+  "https://www.pinterest.com/michaelpruglo/girls/mouthtongue/",
+  "https://www.pinterest.com/michaelpruglo/girls/fit/",
+  "https://www.pinterest.com/michaelpruglo/girls/overknee-socks/",
+  "https://www.pinterest.com/michaelpruglo/girls/glasses/",
+  "https://www.pinterest.com/michaelpruglo/girls/hairstyles/",
+  "https://www.pinterest.com/michaelpruglo/girls/stilettos/",
+  "https://www.pinterest.com/michaelpruglo/girls/faces/",
+  "https://www.pinterest.com/michaelpruglo/girls/outfits/",
+  "https://www.pinterest.com/michaelpruglo/girls/"
+]
+
+main(test_boardnames)
