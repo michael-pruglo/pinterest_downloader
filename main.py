@@ -1,14 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-binary = r'C:\Program Files\Mozilla Firefox\firefox.exe'
-options = Options()
-options.set_headless(headless=True)
-options.binary = binary
-cap = DesiredCapabilities().FIREFOX
-cap["marionette"] = True #optional
-driver = webdriver.Firefox(firefox_options=options, capabilities=cap, executable_path="C:\\python\\geckodriver.exe")
+driver = webdriver.Chrome()
 
 LOCAL_PARENT_FOLDER = "D:/temp/nyyyy"
 LOG_LINE_LEN = 140
@@ -138,8 +129,7 @@ def makeFullSubsectionURL(parent_board_name, subsection, username="michaelpruglo
   return pinterest_prefix + username + "/" + parent_board_name + "/" + subsection + "/"
 
 input_test_set = [
-  "misc-awesome-stuff",
-  "test",
+  "color"
 ]
 input_test_boardnames = [makeFullBoardURL(s) for s in input_test_set]
 
